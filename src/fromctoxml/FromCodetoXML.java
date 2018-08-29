@@ -24,7 +24,6 @@ public class FromCodetoXML{
         add("double");
         add("boolean");
         add("char");
-        add("void");
     }};
     public static void main(String[] args) throws FileNotFoundException, IOException {
         parseToXml("simpleTest");
