@@ -46,13 +46,13 @@ public class FromCodetoXML{
 
     /**
      * This function do the followins steps:<br>
-     * 1- create BuffredReader (br) and BuffredWriter (bw)
+     * &emsp;1- create BuffredReader (br) and BuffredWriter (bw)
      *    br will read the input file
      *    bw will write in the output file<br>
-     * 2- delete empty lines of the input file and also non significatif spaces (see: preTraitement(br,bw);)<br>
-     * 3- From the top of the input file, the loop search for lines containing
+     * &emsp;2- delete empty lines of the input file and also non significatif spaces (see: preTraitement(br,bw);)<br>
+     * &emsp;3- From the top of the input file, the loop search for lines containing
      *    one of the 'keyword' which needs brackets (like: if, for, while statement) (see: needBrackets(strLine))<br>
-     * 4- whene the function find line needing brackets, the "searchEndBracket" function search
+     * &emsp;4- whene the function find line needing brackets, the "searchEndBracket" function search
      *    for the end bracket of the current line.<br>
      * @param inputFileName  is a string representing the name of the input file with extention (.c)
      * @return returns the corresponding xml file (file type)
@@ -145,12 +145,12 @@ public class FromCodetoXML{
     /**
      * This is a recursive function<br>
      * steps:<br>
-     * 1- print first tab of 'line' parameter by calling printAccordingFirstTag(line,bw,++tab) function<br>
-     * 2- read a new ligne and should be '{'<br>
-     * 3- read next line, this new line can be in one of the current cases:<br>
-     *    case 1: the line does not need brackets (e.g sample statement) in that case we just print this line in the output file<br>
-     *    case 2: the line needs a btackets and in this case we call the same function (recursivity)
-     *    case 3: if it is a '}' print end tag (by calling printAccordingEndTag(line,bw,++tab) function) and return<br>
+     * &emsp;1- print first tab of 'line' parameter by calling printAccordingFirstTag(line,bw,++tab) function<br>
+     * &emsp;2- read a new ligne and should be '{'<br>
+     * &emsp;3- read next line, this new line can be in one of the current cases:<br>
+     *    &emsp;&emsp;case 1: the line does not need brackets (e.g sample statement) in that case we just print this line in the output file<br>
+     *    &emsp;&emsp;case 2: the line needs a btackets and in this case we call the same function (recursivity)<br>
+     *    &emsp;&emsp;case 3: if it is a '}' print end tag (by calling printAccordingEndTag(line,bw,++tab) function) and return<br>
      * @param line string corresponding to the current line
      * @param br BufferedReader of the input file
      * @param bw BufferedWriter of the ouput file
@@ -186,6 +186,14 @@ public class FromCodetoXML{
         printAccordingEndTag(line,bw,++tab);
         tab--;
     }
+    /**
+     * This fucntion is used to check whether if the current code line is a function definition, if statement
+     * for loop ,,, then call according function to print According tag
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException 
+     */
     private static void printAccordingFirstTag(String line, BufferedWriter bw, int tab) throws IOException {
         if(isFunctionDefinition(line)){
             printXMl_functionDefinition(line,bw,tab);
@@ -200,6 +208,13 @@ public class FromCodetoXML{
             return;
         }
     }
+    /**
+     * This function check if the current line is a function definition or not by spliting (by space) the line and check if it contains:<br>
+     * &emsp;- data type in the first part<br>
+     * &emsp;- the second part should contain open and close parentheses
+     * @param line string containing current code line
+     * @return true if the current line is a function definition, false otherwise
+     */
     private static boolean isFunctionDefinition(String line) {
         //in a function definition we should have at least two parts separated by a space caracter
         String[] parts = line.split(" ");
@@ -214,7 +229,13 @@ public class FromCodetoXML{
         } 
         return true;
     }
-    
+    /**
+     * This function check if the current line is an if statement or not by spliting (by open parenthese) the line and check if it contains:<br>
+     * &emsp;- the keyword 'if' and open parenthese in the first part<br>
+     * &emsp;- the second part should contain close parenthese
+     * @param line string containing current code line
+     * @return true if the current line is an if statement, false otherwise
+     */
     private static boolean isIf_Statement(String line) {
         //The line should begin with if and à '('
         String[] parts = line.split("\\(");
@@ -227,7 +248,14 @@ public class FromCodetoXML{
         }
         return true;
     }
-    
+    /**
+     * This function check if the current line is a for loop or not by spliting (by open parenthese) the line and check if it contains:<br>
+     * &emsp;- the keyword 'for' and open parenthese in the first part<br>
+     * &emsp;- the second part should contain close parenthese<br>
+     * &emsp;- the third part should containing exatly two semicolons ';'
+     * @param line string containing current code line
+     * @return true if the current line is a for loop, false otherwise
+     */
     private static boolean isFor_loop(String line) {
         //The line should begin with if and à '('
         String[] parts = line.split("\\(");
@@ -244,7 +272,18 @@ public class FromCodetoXML{
             return false;
         return true;
     }
-    
+    /**
+     * This function is used to print (by calling printXML_ function) the XML tag of the function definition containing in the current line<br>
+     * Function definition is characterized by:<br>
+     * &emsp;- function tag with name attribute<br>
+     * &emsp;- returntype tag<br>
+     * &emsp;- arguments tag<br>
+     * &emsp;- body tag<br>
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException 
+     */
     private static void printXMl_functionDefinition(String line,BufferedWriter bw,int tab) throws IOException {
         // La fonction commence par le type de retour puis le nom de la fonction 
         //puis une liste de paramètres entre parenthèses séparés par des virgules
@@ -294,7 +333,17 @@ public class FromCodetoXML{
         /*System.out.println("</function>");*/
         
     }
-    
+    /**
+     * This function is used to print (by calling printXML_ function) the XML tag of the if statement containing in the current line<br>
+     * if statement is characterized by:<br>
+     * &emsp;- if tag<br>
+     * &emsp;- condition tag<br>
+     * &emsp;- body tag<br>
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException 
+     */
     private static void printXMl_if(String line, BufferedWriter bw,int tab) throws IOException {
         //print if tag
         int tabulation = tab;
@@ -306,6 +355,17 @@ public class FromCodetoXML{
         //print parameters end tag
         printXML_("<body>",bw,tabulation);
     }
+    /**
+     * This function is used to print (by calling printXML_ function) the XML tag of the for loop containing in the current line<br>
+     * for loop is characterized by:<br>
+     * &emsp;- for tag<br>
+     * &emsp;- elements tag<br>
+     * &emsp;- body tag<br>
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException 
+     */
     private static void printXMl_for(String line, BufferedWriter bw,int tab) throws IOException {
         //print if tag
         int tabulation = tab;
@@ -322,6 +382,15 @@ public class FromCodetoXML{
         //print parameters end tag
         printXML_("<body>",bw,tabulation);
     }
+    /**
+     * This function is used to print the XML line (containing in 'tags' argument) into the output file<br>
+     * it stats by printing tabulations ( \t ) numberOfTabulation times<br>
+     * at the end, the bw shoult point into the next line.
+     * @param tags XML line to print
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param numberOfTabulation number of tabulations to print
+     * @throws IOException
+     */
     private static void printXML_(String tags,BufferedWriter bw, int numberOfTabulation) throws IOException {
         for(int i = 1;i <= numberOfTabulation; i++){
             tags = "\t"+tags;
@@ -331,7 +400,14 @@ public class FromCodetoXML{
         bw.newLine();
         System.out.println(tags);
     }
-
+    /**
+     * This fucntion is used to check whether if the current code line is a function definition, if statement
+     * for loop ,,, then print the according end tag
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException 
+     */
     private static void printAccordingEndTag(String line, BufferedWriter bw,int tab) throws IOException {
         if(isFunctionDefinition(line)){
             printXML_("</body>",bw,tab);
