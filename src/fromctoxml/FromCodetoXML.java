@@ -11,17 +11,10 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * The main funciton of this class is to generate the XML structure of 
- * any script programmed in C programming language, So The input should be a 
- * .c file, and by running this class (main function) it will generate the 
- * corresponding XML file.
+ *
  * @author EL GHACHI MOHAMED
  */
 public class FromCodetoXML{
-
-    /**
-     *is a list containing all primitive data types (byte, short, int, long ...)
-     */
     public static List<String> primitiveDataTypes = new ArrayList<String>() {{
         add("byte");
         add("short");
@@ -31,34 +24,10 @@ public class FromCodetoXML{
         add("double");
         add("boolean");
         add("char");
-        add("void");
     }};
-    /**
-     * calling of "parseToXml" function with a string in parameter which is the
-     * name of the input file
-     * @param args : not used
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
     public static void main(String[] args) throws FileNotFoundException, IOException {
         parseToXml("simpleTest");
     }
-
-    /**
-     * This function do the followins steps:<br>
-     * 1- create BuffredReader (br) and BuffredWriter (bw)
-     *    br will read the input file
-     *    bw will write in the output file<br>
-     * 2- delete empty lines of the input file and also non significatif spaces (see: preTraitement(br,bw);)<br>
-     * 3- From the top of the input file, the loop search for lines containing
-     *    one of the 'keyword' which needs brackets (like: if, for, while statement) (see: needBrackets(strLine))<br>
-     * 4- whene the function find line needing brackets, the "searchEndBracket" function search
-     *    for the end bracket of the current line.<br>
-     * @param inputFileName  is a string representing the name of the input file with extention (.c)
-     * @return returns the corresponding xml file (file type)
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
     public static File parseToXml(String inputFileName) throws FileNotFoundException, IOException{
         String inputFilePath = "test\\Files\\input\\"+inputFileName+".c";
         FileInputStream fstream = new FileInputStream(inputFilePath);
@@ -96,13 +65,6 @@ public class FromCodetoXML{
         }
         return returnedFile;
     }
-    
-    /**
-    * delete empty lines of the input file and also non significatif spaces (trim function)
-    * @param br : buffredReader of the input file.
-    * @param bw : bufferedWriter of the output file.
-    * @throws IOException 
-    */
     private static void preTraitement(BufferedReader br, BufferedWriter bw) throws IOException {
         String strLine;
         //Read File Line By Line
@@ -124,12 +86,6 @@ public class FromCodetoXML{
             bw.close();
         }
     }
-    /**
-     * check if the parameter (which represents the current line) is the begining of a function definition, 
-     * if statement, for loop by calling a boolean function of the specific kind of statement
-     * @param strLine is a string corresponding to the statement type
-     * @return 
-     */
     private static String needBrackets(String strLine) {
         if(isFunctionDefinition(strLine)){
             return "function";
@@ -142,25 +98,10 @@ public class FromCodetoXML{
         }
         return null;
     }
-    /**
-     * This is a recursive function<br>
-     * steps:<br>
-     * 1- print first tab of 'line' parameter by calling printAccordingFirstTag(line,bw,++tab) function<br>
-     * 2- read a new ligne and should be '{'<br>
-     * 3- read next line, this new line can be in one of the current cases:<br>
-     *    case 1: the line does not need brackets (e.g sample statement) in that case we just print this line in the output file<br>
-     *    case 2: the line needs a btackets and in this case we call the same function (recursivity)
-     *    case 3: if it is a '}' print end tag (by calling printAccordingEndTag(line,bw,++tab) function) and return<br>
-     * @param line string corresponding to the current line
-     * @param br BufferedReader of the input file
-     * @param bw BufferedWriter of the ouput file
-     * @param tab int for printing tabulation in the output file (root tab should hab 0 in this param, first level should be 1 and so on)
-     * @throws IOException 
-     */
     private static void searchEndBracket(String line,BufferedReader br, BufferedWriter bw,int tab) throws IOException {
         //print first tab of line
         //read new ligne and should be '{'
-        //read another new line
+        //read an other new line
         //if it is a '}' print end tag and return
         //else check if the new line needs a btackets and call the same function
         printAccordingFirstTag(line,bw,++tab);
