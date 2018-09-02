@@ -37,8 +37,8 @@ public class FromCodetoXML{
      * calling of "parseToXml" function with a string in parameter which is the
      * name of the input file
      * @param args : not used
-     * @throws FileNotFoundException
-     * @throws IOException
+     * @throws FileNotFoundException for input file.
+     * @throws IOException for I/O excepiton for I/O excepiton
      */
     public static void main(String[] args) throws FileNotFoundException, IOException {
         parseToXml("simpleTest");
@@ -49,15 +49,15 @@ public class FromCodetoXML{
      * &emsp;1- create BuffredReader (br) and BuffredWriter (bw)
      *    br will read the input file
      *    bw will write in the output file<br>
-     * &emsp;2- delete empty lines of the input file and also non significatif spaces (see: preTraitement(br,bw);)<br>
+     * &emsp;2- delete empty lines of the input file and also non significatif spaces by calling preTraitement(br,bw) function, the result will be will be stored in a tomporary file  xyz_temp,C<br>
      * &emsp;3- From the top of the input file, the loop search for lines containing
      *    one of the 'keyword' which needs brackets (like: if, for, while statement) (see: needBrackets(strLine))<br>
-     * &emsp;4- whene the function find line needing brackets, the "searchEndBracket" function search
+     * &emsp;4- when the function find line needing brackets, the "searchEndBracket" function search
      *    for the end bracket of the current line.<br>
      * @param inputFileName  is a string representing the name of the input file with extention (.c)
      * @return returns the corresponding xml file (file type)
-     * @throws FileNotFoundException
-     * @throws IOException
+     * @throws FileNotFoundException for input file.
+     * @throws IOException for I/O excepiton
      */
     public static File parseToXml(String inputFileName) throws FileNotFoundException, IOException{
         String inputFilePath = "test\\Files\\input\\"+inputFileName+".c";
@@ -84,7 +84,7 @@ public class FromCodetoXML{
                 instruction = needBrackets(strLine);
                 if(instruction != null){
                     int tab = -1;
-                    searchEndBracket(strLine,br,bw,tab);
+                    searchEndBracket(strLine,instruction,br,bw,tab);
                 }
             }
         }catch(IOException e){
@@ -101,7 +101,7 @@ public class FromCodetoXML{
     * delete empty lines of the input file and also non significatif spaces (trim function)
     * @param br : buffredReader of the input file.
     * @param bw : bufferedWriter of the output file.
-    * @throws IOException 
+    * @throws IOException for I/O excepiton 
     */
     private static void preTraitement(BufferedReader br, BufferedWriter bw) throws IOException {
         String strLine;
@@ -128,7 +128,7 @@ public class FromCodetoXML{
      * check if the parameter (which represents the current line) is the begining of a function definition, 
      * if statement, for loop by calling a boolean function of the specific kind of statement
      * @param strLine is a string corresponding to the statement type
-     * @return 
+     * @return string describing the kind of line  if it needs brackets, null if not.
      */
     private static String needBrackets(String strLine) {
         if(isFunctionDefinition(strLine)){
@@ -155,15 +155,15 @@ public class FromCodetoXML{
      * @param br BufferedReader of the input file
      * @param bw BufferedWriter of the ouput file
      * @param tab int for printing tabulation in the output file (root tab should hab 0 in this param, first level should be 1 and so on)
-     * @throws IOException 
+     * @throws IOException for I/O excepiton 
      */
-    private static void searchEndBracket(String line,BufferedReader br, BufferedWriter bw,int tab) throws IOException {
+    private static void searchEndBracket(String line, String instruction, BufferedReader br, BufferedWriter bw,int tab) throws IOException {
         //print first tab of line
         //read new ligne and should be '{'
         //read another new line
         //if it is a '}' print end tag and return
         //else check if the new line needs a btackets and call the same function
-        printAccordingFirstTag(line,bw,++tab);
+        printAccordingFirstTag(line,instruction,bw,++tab);
         br.readLine();//strLine should be '{'
         String strLine;
         while ((strLine = br.readLine()) != null){
@@ -173,10 +173,9 @@ public class FromCodetoXML{
                 return;
             }
             //check if the current needs brackets
-            String instruction;
             instruction = needBrackets(strLine);
             if(instruction != null){
-                searchEndBracket(strLine,br,bw,++tab);
+                searchEndBracket(strLine,instruction,br,bw,++tab);
                 tab--;
             }else{
                 printXML_("<instruction>"+strLine+"</instruction>",bw,tab+=2);
@@ -192,24 +191,24 @@ public class FromCodetoXML{
      * @param line string containing current code line
      * @param bw BufferedWriter to write the begening of the according tag
      * @param tab used for formating tabulations in the output file
-     * @throws IOException 
+     * @throws IOException for I/O excepiton 
      */
-    private static void printAccordingFirstTag(String line, BufferedWriter bw, int tab) throws IOException {
-        if(isFunctionDefinition(line)){
+    private static void printAccordingFirstTag(String line, String instruction, BufferedWriter bw, int tab) throws IOException {
+        if(instruction.equals("function")){
             printXMl_functionDefinition(line,bw,tab);
             return;
         }
-        if(isIf_Statement(line)){
+        if(instruction.equals("if")){
             printXMl_if(line,bw,tab);
             return;
         }
-        if(isFor_loop(line)){
+        if(instruction.equals("for")){
             printXMl_for(line,bw,tab);
             return;
         }
     }
     /**
-     * This function check if the current line is a function definition or not by spliting (by space) the line and check if it contains:<br>
+     * This function checks if the current line is a function definition or not by spliting (by space) the line and check if it contains:<br>
      * &emsp;- data type in the first part<br>
      * &emsp;- the second part should contain open and close parentheses
      * @param line string containing current code line
@@ -230,7 +229,7 @@ public class FromCodetoXML{
         return true;
     }
     /**
-     * This function check if the current line is an if statement or not by spliting (by open parenthese) the line and check if it contains:<br>
+     * This function checks if the current line is an if statement or not by spliting (by open parenthese) the line and check if it contains:<br>
      * &emsp;- the keyword 'if' and open parenthese in the first part<br>
      * &emsp;- the second part should contain close parenthese
      * @param line string containing current code line
@@ -249,7 +248,7 @@ public class FromCodetoXML{
         return true;
     }
     /**
-     * This function check if the current line is a for loop or not by spliting (by open parenthese) the line and check if it contains:<br>
+     * This function checks if the current line is a for loop or not by spliting (by open parenthese) the line and check if it contains:<br>
      * &emsp;- the keyword 'for' and open parenthese in the first part<br>
      * &emsp;- the second part should contain close parenthese<br>
      * &emsp;- the third part should containing exatly two semicolons ';'
@@ -282,7 +281,7 @@ public class FromCodetoXML{
      * @param line string containing current code line
      * @param bw BufferedWriter to write the begening of the according tag
      * @param tab used for formating tabulations in the output file
-     * @throws IOException 
+     * @throws IOException for I/O excepiton 
      */
     private static void printXMl_functionDefinition(String line,BufferedWriter bw,int tab) throws IOException {
         // La fonction commence par le type de retour puis le nom de la fonction 
@@ -342,7 +341,7 @@ public class FromCodetoXML{
      * @param line string containing current code line
      * @param bw BufferedWriter to write the begening of the according tag
      * @param tab used for formating tabulations in the output file
-     * @throws IOException 
+     * @throws IOException for I/O excepiton 
      */
     private static void printXMl_if(String line, BufferedWriter bw,int tab) throws IOException {
         //print if tag
@@ -364,7 +363,7 @@ public class FromCodetoXML{
      * @param line string containing current code line
      * @param bw BufferedWriter to write the begening of the according tag
      * @param tab used for formating tabulations in the output file
-     * @throws IOException 
+     * @throws IOException for I/O excepiton 
      */
     private static void printXMl_for(String line, BufferedWriter bw,int tab) throws IOException {
         //print if tag
@@ -376,7 +375,7 @@ public class FromCodetoXML{
         //print intialisation, condition and accrementation tags of the for loop
         printXML_("<elements>",bw,++tabulation);
         printXML_("<intialization>"+forElements[0]+"</intialization>",bw,++tabulation);
-        printXML_("<condition>"+forElements[1]+"</condition>",bw,tabulation);
+        printXML_("<condition>"+forElements[1].replace("<", "&lt;")+"</condition>",bw,tabulation);
         printXML_("<increment>"+forElements[2]+"</increment>",bw,tabulation);
         printXML_("</elements>",bw,--tabulation);
         //print parameters end tag
@@ -389,7 +388,7 @@ public class FromCodetoXML{
      * @param tags XML line to print
      * @param bw BufferedWriter to write the begening of the according tag
      * @param numberOfTabulation number of tabulations to print
-     * @throws IOException
+     * @throws IOException for I/O excepiton
      */
     private static void printXML_(String tags,BufferedWriter bw, int numberOfTabulation) throws IOException {
         for(int i = 1;i <= numberOfTabulation; i++){
@@ -406,7 +405,7 @@ public class FromCodetoXML{
      * @param line string containing current code line
      * @param bw BufferedWriter to write the begening of the according tag
      * @param tab used for formating tabulations in the output file
-     * @throws IOException 
+     * @throws IOException for I/O excepiton 
      */
     private static void printAccordingEndTag(String line, BufferedWriter bw,int tab) throws IOException {
         if(isFunctionDefinition(line)){
