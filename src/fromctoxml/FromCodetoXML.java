@@ -137,10 +137,13 @@ public class FromCodetoXML{
             return "function";
         }
         if(isIf_Statement(strLine)){
-                return "if";
+            return "if";
         }
         if(isFor_loop(strLine)){
-                return "for";
+            return "for";
+        }
+        if(isWhile_loop(strLine)){
+            return "while";
         }
         return null;
     }
@@ -165,12 +168,13 @@ public class FromCodetoXML{
         //read another new line
         //if it is a '}' print end tag and return
         //else check if the new line needs a btackets and call the same function
-        printAccordingFirstTag(line,instruction,bw,++tab);
+        String instructionOriginale = instruction;
+        printAccordingFirstTag(line,instructionOriginale,bw,++tab);
         br.readLine();//strLine should be '{'
         String strLine;
         while ((strLine = br.readLine()) != null){
             if(strLine.equals("}")){
-                printAccordingEndTag(line,bw,++tab);
+                printAccordingEndTag(line,instructionOriginale,bw,++tab);
                 tab--;
                 return;
             }
@@ -184,7 +188,7 @@ public class FromCodetoXML{
                 tab-=2;
             }
         }
-        printAccordingEndTag(line,bw,++tab);
+        printAccordingEndTag(line,instructionOriginale,bw,++tab);
         tab--;
     }
     /**
@@ -206,6 +210,10 @@ public class FromCodetoXML{
         }
         if(instruction.equals("for")){
             printXMl_for(line,bw,tab);
+            return;
+        }
+        if(instruction.equals("while")){
+            printXMl_while(line,bw,tab);
             return;
         }
     }
@@ -271,6 +279,26 @@ public class FromCodetoXML{
         String[] forElements  = line.split("\\;");
         if(forElements.length != 3)
             return false;
+        return true;
+    }
+    /**
+     * This function checks if the current line is a while loop or not by spliting (by open parenthese) the line and check if it contains:<br>
+     * &emsp;- the keyword 'while' and open parenthese in the first part<br>
+     * &emsp;- the second part should containing exatly two semicolons ';'<br>
+     * &emsp;- the third part should contain close parenthese
+     * @param line string containing current code line
+     * @return true if the current line is a for loop, false otherwise
+     */
+    private static boolean isWhile_loop(String line) {
+        //The line should begin with if and à '('
+        String[] parts = line.split("\\(");
+        if(!parts[0].equals("while")){ return false; }
+        //get rest of the string without return type
+        line = line.substring(parts[0].length(), line.length());//+1 for first space character ' '
+        //The second part of the header should contains bracket ')'
+        if(line.indexOf(")") != line.length()-1){
+            return false;
+        }
         return true;
     }
     /**
@@ -368,7 +396,6 @@ public class FromCodetoXML{
      * @throws IOException for I/O excepiton 
      */
     private static void printXMl_for(String line, BufferedWriter bw,int tab) throws IOException {
-        //print if tag
         int tabulation = tab;
         printXML_("<for>",bw,tabulation);
         String[] parts = line.split("\\(");
@@ -380,6 +407,27 @@ public class FromCodetoXML{
         printXML_("<condition>"+forElements[1]+"</condition>",bw,tabulation);
         printXML_("<increment>"+forElements[2]+"</increment>",bw,tabulation);
         printXML_("</elements>",bw,--tabulation);
+        //print parameters end tag
+        printXML_("<body>",bw,tabulation);
+    }
+    /**
+     * This function is used to print (by calling printXML_ function) the XML tag of the while loop containing in the current line<br>
+     * while loop is characterized by:<br>
+     * &emsp;- while tag<br>
+     * &emsp;- condition tag<br>
+     * &emsp;- body tag<br>
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException for I/O excepiton 
+     */
+    private static void printXMl_while(String line, BufferedWriter bw, int tab) throws IOException {
+        int tabulation = tab;
+        printXML_("<while>",bw,tabulation);
+        String[] condition = line.split("\\(");
+        condition = condition[1].split("\\)");
+        //print condition tag
+        printXML_("<condition>"+condition[0]+"</condition>",bw,++tabulation);
         //print parameters end tag
         printXML_("<body>",bw,tabulation);
     }
@@ -409,20 +457,25 @@ public class FromCodetoXML{
      * @param tab used for formating tabulations in the output file
      * @throws IOException for I/O excepiton 
      */
-    private static void printAccordingEndTag(String line, BufferedWriter bw,int tab) throws IOException {
-        if(isFunctionDefinition(line)){
+    private static void printAccordingEndTag(String line, String instruction, BufferedWriter bw,int tab) throws IOException {
+        if(instruction.equals("function")){
             printXML_("</body>",bw,tab);
             printXML_("</function>",bw,--tab);
             return;
         }
-        if(isIf_Statement(line)){
+        if(instruction.equals("if")){
             printXML_("</body>",bw,tab);
             printXML_("</if>",bw,--tab);
             return;
         }
-        if(isFor_loop(line)){
+        if(instruction.equals("for")){
             printXML_("</body>",bw,tab);
             printXML_("</for>",bw,--tab);
+            return;
+        }
+        if(instruction.equals("while")){
+            printXML_("</body>",bw,tab);
+            printXML_("</while>",bw,--tab);
             return;
         }
     }
