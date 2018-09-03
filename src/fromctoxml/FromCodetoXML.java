@@ -112,6 +112,8 @@ public class FromCodetoXML{
                 strLine = strLine.trim();
                 //check just not empty line
                 if(!strLine.equals("")){
+                    strLine = strLine.replace("<", "&lt");
+                    strLine = strLine.replace(">", "&gt");
                     bw.write(strLine,0,strLine.length());
                     bw.newLine();
                 }
@@ -375,7 +377,7 @@ public class FromCodetoXML{
         //print intialisation, condition and accrementation tags of the for loop
         printXML_("<elements>",bw,++tabulation);
         printXML_("<intialization>"+forElements[0]+"</intialization>",bw,++tabulation);
-        printXML_("<condition>"+forElements[1].replace("<", "&lt;")+"</condition>",bw,tabulation);
+        printXML_("<condition>"+forElements[1]+"</condition>",bw,tabulation);
         printXML_("<increment>"+forElements[2]+"</increment>",bw,tabulation);
         printXML_("</elements>",bw,--tabulation);
         //print parameters end tag
