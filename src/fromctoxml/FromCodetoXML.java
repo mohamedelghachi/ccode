@@ -139,6 +139,9 @@ public class FromCodetoXML{
         if(isIf_Statement(strLine)){
             return "if";
         }
+        if(isElse_Statement(strLine)){
+            return "else";
+        }
         if(isFor_loop(strLine)){
             return "for";
         }
@@ -208,6 +211,10 @@ public class FromCodetoXML{
             printXMl_if(line,bw,tab);
             return;
         }
+        if(instruction.equals("else")){
+            printXMl_else(line,bw,tab);
+            return;
+        }
         if(instruction.equals("for")){
             printXMl_for(line,bw,tab);
             return;
@@ -255,6 +262,18 @@ public class FromCodetoXML{
         if(!line.contains(")")){
             return false;
         }
+        return true;
+    }
+    /**
+     * This function checks if the current line is an else statement or not by spliting (by open parenthese) the line and check if it contains:<br>
+     * &emsp;- the keyword 'else' and open parenthese in the first part<br>
+     * &emsp;- the second part should contain close parenthese
+     * @param line string containing current code line
+     * @return true if the current line is an if statement, false otherwise
+     */
+    private static boolean isElse_Statement(String line) {
+        //line should contain only 'line' word
+        if(!line.equals("else")){ return false; }
         return true;
     }
     /**
@@ -385,6 +404,23 @@ public class FromCodetoXML{
         printXML_("<body>",bw,tabulation);
     }
     /**
+     * This function is used to print (by calling printXML_ function) the XML tag of the else statement containing in the current line<br>
+     * if statement is characterized by:<br>
+     * &emsp;- else tag<br>
+     * &emsp;- condition tag<br>
+     * &emsp;- body tag<br>
+     * @param line string containing current code line
+     * @param bw BufferedWriter to write the begening of the according tag
+     * @param tab used for formating tabulations in the output file
+     * @throws IOException for I/O excepiton 
+     */
+    private static void printXMl_else(String line, BufferedWriter bw,int tab) throws IOException {
+        //print if tag
+        int tabulation = tab;
+        printXML_("<else>",bw,tabulation);
+        printXML_("<body>",bw,++tabulation);
+    }
+    /**
      * This function is used to print (by calling printXML_ function) the XML tag of the for loop containing in the current line<br>
      * for loop is characterized by:<br>
      * &emsp;- for tag<br>
@@ -466,6 +502,11 @@ public class FromCodetoXML{
         if(instruction.equals("if")){
             printXML_("</body>",bw,tab);
             printXML_("</if>",bw,--tab);
+            return;
+        }
+        if(instruction.equals("else")){
+            printXML_("</body>",bw,tab);
+            printXML_("</else>",bw,--tab);
             return;
         }
         if(instruction.equals("for")){
